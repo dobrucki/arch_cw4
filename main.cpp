@@ -79,7 +79,7 @@ void kont(unsigned char far* video_memory, unsigned int size, unsigned int kont)
     }
 }
 void proguj(unsigned char far* video_memory, unsigned int size, unsigned int prog){
-  if(prog <= 255)
+  if(prog <= 254)
     for(int i = 0; i < size; i++)
       if(*(video_memory + i) < prog)
         *(video_memory + i) = 0;
