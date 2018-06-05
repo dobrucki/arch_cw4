@@ -68,18 +68,20 @@ void rozjasnij(unsigned char far* video_memory, unsigned int size, int jasnosc){
     }
   }
 }
-void kont(unsigned char far* video_memory, unsigned int size, unsigned int kont){
+void kont(unsigned char far* video_memory, unsigned int size, double kont){
     int srednia = 0;
     for(int i = 0; i < size; i++)
       srednia += *(video_memory + i);
     srednia = srednia / size;
     for(int j = 0; j < size; j++){
-      *(video_memory + j) *= kont;
-      *(video_memory + j) -= srednia;
+		int val = kont * (*(video_memory+j) - 128) + 128;
+		if(val > 255) val = 255;
+		else if(val < 0) val = 0;
+		*(video_memory + j) = val;
     }
 }
 void proguj(unsigned char far* video_memory, unsigned int size, unsigned int prog){
-  if(prog <= 254)
+  if(prog <= 255)
     for(int i = 0; i < size; i++)
       if(*(video_memory + i) < prog)
         *(video_memory + i) = 0;
@@ -115,7 +117,7 @@ int main(){
   cout << "4. progowanie" << endl;
   cin >> op;
   int jasnosc = 0;
-  int kontrast = 0;
+  double kontrast = 0;
   unsigned int prog = 0;
   switch(op){
     case 2:
@@ -146,15 +148,15 @@ int main(){
   fread(&palette, sizeof(RGBQUAD), 256, bitmap_file);
   outportb(0x03C8, 0);
   for (int k = 0; k <= 255; k++){
-    outp(0x03C9, palette[k].rgbRed * 63 / 255);
-    outp(0x03C9, palette[k].rgbGreen * 63 / 255);
-    outp(0x03C9, palette[k].rgbBlue * 63 / 255);
+    outp(0x03C9, palette[k].rgbRed * 63 / 256);
+    outp(0x03C9, palette[k].rgbGreen * 63 / 256);
+    outp(0x03C9, palette[k].rgbBlue * 63 / 256);
   }
   BYTE* buffer = new BYTE[320];
    for(int i = 0; i < 200; i++){
      fread((void*)(buffer), 1, 320, bitmap_file);
      for(int j = 1; j <= 320; j++)
-     video_memory[size - (i * 320) - j] = *(buffer + 320 - j);
+		video_memory[size - (i * 320) - j] = *(buffer + 320 - j);
    }
   fclose(bitmap_file);
   getch();
